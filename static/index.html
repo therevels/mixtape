@@ -131,8 +131,9 @@
 
           document.getElementById('login-button').addEventListener('click', function() {
 
-            var client_id = 'CLIENT_ID'; // Your client id
-            var redirect_uri = 'REDIRECT_URI'; // Your redirect uri
+            var client_id = '276df58e75994c758e5480bf65c5e18f';
+            // This is a terrible idea but will work in the short term
+            var redirect_uri = window.location.href;
 
             var state = generateRandomString(16);
 
