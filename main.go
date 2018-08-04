@@ -9,5 +9,5 @@ func main() {
 		http.ServeFile(w, r, "static/index.html")
 	})
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8088", nil)
 }
