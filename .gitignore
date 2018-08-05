@@ -11,3 +11,6 @@ mixtape
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Environment variables with sensitive information
+.env
