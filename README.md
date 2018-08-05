@@ -21,10 +21,11 @@ Local development
 	git clone git@github.com:mixtape.git $GOPATH/src/github.com/therevels/mixtape
 	```
 
-2.	Set up a `.env` file with the environment variables described [configuration instructions](#configuration):
+2.	Copy the example `.env` file and edit the environment variables (see [configuration instructions](#configuration)\):
 
 	```console
 	cp .env.example .env
+	vim .env
 	```
 
 3.	Build the image locally:
