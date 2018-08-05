@@ -27,10 +27,16 @@ Local development
 	cp .env.example .env
 	```
 
-3.	Use docker compose to start the app in a container:
+3.	Build the image locally:
+
+	```console
+	docker-compose build
+	```
+
+4.	Start the app containers locally:
 
 	```console
 	docker-compose up
 	```
 
-4.	Visit http://localhost:8088 in a browser
+5.	Visit http://localhost:8088 in a browser

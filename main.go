@@ -9,5 +9,7 @@ func main() {
 		http.ServeFile(w, r, "static/index.html")
 	})
 
+	http.HandleFunc("/auth/login", Login)
+
 	http.ListenAndServe(":8088", nil)
 }

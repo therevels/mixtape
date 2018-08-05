@@ -4,3 +4,7 @@ services:
     build: .
     ports:
      - "8088:8088"
+    environment:
+      - SPOTIFY_ID
+      - SPOTIFY_SECRET
+      - REDIRECT_URI
