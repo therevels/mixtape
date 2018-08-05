@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -11,5 +12,5 @@ func main() {
 
 	http.HandleFunc("/auth/login", Login)
 
-	http.ListenAndServe(":8088", nil)
+	log.Fatal(http.ListenAndServe(":8088", nil))
 }

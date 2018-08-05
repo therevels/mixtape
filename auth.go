@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -27,7 +28,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	state := strconv.Itoa(int(time.Now().UnixNano()))
 
 	url := auth.AuthURL(state)
-	fmt.Fprintf(w, "url: %v", url)
+	_, err := fmt.Fprintf(w, "url: %v", url)
+	if err != nil {
+		log.Printf("some kind error: %v", err)
+	}
 
 	// TODO redirect to the url
 }
