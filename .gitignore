@@ -14,3 +14,7 @@ mixtape
 
 # Environment variables with sensitive information
 .env
+.envrc
+
+# Vendored dependencies
+vendor/
