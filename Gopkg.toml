@@ -32,3 +32,19 @@
 [[constraint]]
   branch = "master"
   name = "github.com/zmb3/spotify"
+
+[[override]]
+  name = "gopkg.in/fsnotify.v1"
+  source = "gopkg.in/fsnotify/fsnotify.v1"
+
+[[override]]
+  branch = "master"
+  name = "github.com/hpcloud/tail"
+
+[[constraint]]
+  name = "github.com/onsi/ginkgo"
+  version = "1.6.0"
+
+[[constraint]]
+  name = "github.com/onsi/gomega"
+  version = "1.4.1"
