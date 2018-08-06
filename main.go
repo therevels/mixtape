@@ -12,5 +12,8 @@ func main() {
 
 	http.HandleFunc("/auth/login", Login)
 
-	log.Fatal(http.ListenAndServe(":8088", nil))
+	err := http.ListenAndServe(":8088", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

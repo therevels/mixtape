@@ -24,7 +24,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	auth := spotify.NewAuthenticator(redirectURI.String(), spotify.ScopeUserReadPrivate)
 
-	// TODO this is supposed to be random and unique
+	// TODO this is supposed to be random and unique, and stored somewhere (like a session
+	// cookie so we can implement CSRF protection for auth by checking the state value when
+	// Spotify redirects back to us)
 	state := strconv.Itoa(int(time.Now().UnixNano()))
 
 	authURL := auth.AuthURL(state)
