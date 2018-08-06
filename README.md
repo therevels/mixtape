@@ -10,7 +10,6 @@ Configuration
 
 	-	`SPOTIFY_ID` - the client ID
 	-	`SPOTIFY_SECRET` - the client secret
-	-	`REDIRECT_URI` - the URI for Spotify to redirect back to after authentication and authorization
 
 Local development
 -----------------

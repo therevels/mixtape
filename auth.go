@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"os"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -15,16 +15,18 @@ import (
 //
 // SPOTIFY_ID - the oauth2 client ID
 // SPOTIFY_SECRET - the oauth2 client secret
-// REDIRECT_URI - the exact URI (including protocol) for spotify to redirect
-//                back to after the user has authenticated and authorized
-//                access
 func Login(w http.ResponseWriter, r *http.Request) {
-	redirectURI := os.Getenv("REDIRECT_URI")
-	auth := spotify.NewAuthenticator(redirectURI, spotify.ScopeUserReadPrivate)
+	redirectURI := &url.URL{
+		Scheme: r.URL.Scheme,
+		Host:   r.URL.Host,
+		Path:   "auth/callback",
+	}
+
+	auth := spotify.NewAuthenticator(redirectURI.String(), spotify.ScopeUserReadPrivate)
 
 	// TODO this is supposed to be random and unique
 	state := strconv.Itoa(int(time.Now().UnixNano()))
 
-	url := auth.AuthURL(state)
-	http.Redirect(w, r, url, 302)
+	authURL := auth.AuthURL(state)
+	http.Redirect(w, r, authURL, 302)
 }
