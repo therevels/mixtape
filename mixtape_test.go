@@ -13,29 +13,31 @@ import (
 )
 
 var _ = Describe("Mixtape", func() {
+	var origClientID, clientID string
+
+	BeforeEach(func() {
+		origClientID = os.Getenv("SPOTIFY_ID")
+		clientID = "my-test-client-id"
+		os.Setenv("SPOTIFY_ID", clientID)
+	})
+
+	AfterEach(func() {
+		os.Setenv("SPOTIFY_ID", origClientID)
+	})
+
 	Describe("Login handler", func() {
 		var req *http.Request
 		var res *httptest.ResponseRecorder
 		var handler http.HandlerFunc
 
-		var origClientID, clientID string
-
 		BeforeEach(func() {
 			var err error
-
-			origClientID = os.Getenv("SPOTIFY_ID")
-			clientID = "my-test-client-id"
-			os.Setenv("SPOTIFY_ID", clientID)
 
 			req, err = http.NewRequest("GET", "/auth/login", nil)
 			Expect(err).ToNot(HaveOccurred())
 
 			res = httptest.NewRecorder()
 			handler = http.HandlerFunc(Login)
-		})
-
-		AfterEach(func() {
-			os.Setenv("SPOTIFY_ID", origClientID)
 		})
 
 		Context("when not logged in", func() {
@@ -79,5 +81,26 @@ var _ = Describe("Mixtape", func() {
 		PContext("when logged in", func() {
 			// TODO: have to figure out what this means - a cookie? redis? are we using a session manager?
 		})
+	})
+
+	Describe("Callback handler", func() {
+		// var req *http.Request
+		// var res *httptest.ResponseRecorder
+		// var handler http.HandlerFunc
+
+		// BeforeEach(func() {
+		// 	var err error
+
+		// 	req, err = http.NewRequest("GET", "/auth/callback", nil)
+		// 	Expect(err).ToNot(HaveOccurred())
+
+		// 	res = httptest.NewRecorder()
+		// 	handler = http.HandlerFunc(Login)
+		// })
+
+		PIt("exchanges the authorization code for an access token", func() {})
+		PIt("validates the session state", func() {})
+		PIt("stores the access token in the session", func() {})
+		PIt("stores the refresh token in the session", func() {})
 	})
 })
