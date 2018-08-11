@@ -12,7 +12,7 @@ import (
 	. "github.com/therevels/mixtape"
 )
 
-var _ = Describe("Mixtape", func() {
+var _ = Describe("Auth", func() {
 	var origClientID, clientID string
 
 	BeforeEach(func() {
@@ -78,7 +78,7 @@ var _ = Describe("Mixtape", func() {
 		})
 	})
 
-	Describe("Callback handler", func() {
+	Describe("Callback", func() {
 		// var req *http.Request
 		// var rec *httptest.ResponseRecorder
 		// var handler http.HandlerFunc
