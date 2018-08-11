@@ -11,18 +11,21 @@ RUN apt-get update && \
     mv dep-linux-amd64 /usr/local/bin/dep && \
     rm -rf /var/lib/apt/lists/*
 
+# We don't absolutely NEED the ginkgo binary to run the test suite, but it's
+# nice to have
+RUN go get -u github.com/onsi/ginkgo/ginkgo
+RUN go get -u github.com/onsi/gomega/...
+
 WORKDIR /go/src/github.com/therevels/mixtape
+
+# Generate a self-signed cert for development
+RUN go run $(go env GOROOT)/src/crypto/tls/generate_cert.go --host localhost
 
 COPY Gopkg.toml Gopkg.toml
 COPY Gopkg.lock Gopkg.lock
 RUN dep ensure -vendor-only
 
 COPY . .
-
-# We don't absolutely NEED the ginkgo binary to run the test suite, but it's
-# nice to have
-go get -u github.com/onsi/ginkgo/ginkgo
-go get -u github.com/onsi/gomega/...
 
 # This is for development purposes only. Eventually we'll want CI/CD to build
 # a leaner release image

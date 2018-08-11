@@ -3,9 +3,9 @@ package main_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 
+	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -25,30 +25,27 @@ var _ = Describe("Mixtape", func() {
 		os.Setenv("SPOTIFY_ID", origClientID)
 	})
 
-	Describe("Login handler", func() {
+	Describe("Login", func() {
 		var req *http.Request
-		var res *httptest.ResponseRecorder
-		var handler http.HandlerFunc
+		var rec *httptest.ResponseRecorder
+		var ctx echo.Context
 
 		BeforeEach(func() {
-			var err error
-
-			req, err = http.NewRequest("GET", "/auth/login", nil)
-			Expect(err).ToNot(HaveOccurred())
-
-			res = httptest.NewRecorder()
-			handler = http.HandlerFunc(Login)
+			e := echo.New()
+			req = httptest.NewRequest(echo.GET, "https://example.com:443/auth/login", nil)
+			rec = httptest.NewRecorder()
+			ctx = e.NewContext(req, rec)
 		})
 
 		Context("when not logged in", func() {
 			It("redirects with a 302", func() {
-				handler.ServeHTTP(res, req)
-				Expect(res.Code).To(Equal(http.StatusFound))
+				Login(ctx)
+				Expect(rec.Code).To(Equal(http.StatusFound))
 			})
 
 			It("redirects to Spotify authorization endpoint", func() {
-				handler.ServeHTTP(res, req)
-				loc, err := res.Result().Location()
+				Login(ctx)
+				loc, err := rec.Result().Location()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(loc.Scheme).To(Equal("https"))
 				Expect(loc.Host).To(Equal("accounts.spotify.com"))
@@ -56,22 +53,20 @@ var _ = Describe("Mixtape", func() {
 			})
 
 			It("includes client ID in redirect", func() {
-				handler.ServeHTTP(res, req)
-				loc, _ := res.Result().Location()
+				Login(ctx)
+				loc, _ := rec.Result().Location()
 				Expect(loc.Query().Get("client_id")).To(Equal(clientID))
 			})
 
 			It("includes redirect URI", func() {
-				loginURL, _ := url.Parse("http://my.testserver.com:8088/auth/login")
-				req.URL = loginURL
-				handler.ServeHTTP(res, req)
-				loc, _ := res.Result().Location()
-				Expect(loc.Query().Get("redirect_uri")).To(Equal("http://my.testserver.com:8088/auth/callback"))
+				Login(ctx)
+				loc, _ := rec.Result().Location()
+				Expect(loc.Query().Get("redirect_uri")).To(Equal("https://example.com:443/auth/callback"))
 			})
 
 			It("includes the auth scopes", func() {
-				handler.ServeHTTP(res, req)
-				loc, _ := res.Result().Location()
+				Login(ctx)
+				loc, _ := rec.Result().Location()
 				Expect(loc.Query().Get("scope")).To(Equal("user-read-private"))
 			})
 
@@ -85,7 +80,7 @@ var _ = Describe("Mixtape", func() {
 
 	Describe("Callback handler", func() {
 		// var req *http.Request
-		// var res *httptest.ResponseRecorder
+		// var rec *httptest.ResponseRecorder
 		// var handler http.HandlerFunc
 
 		// BeforeEach(func() {
@@ -94,7 +89,7 @@ var _ = Describe("Mixtape", func() {
 		// 	req, err = http.NewRequest("GET", "/auth/callback", nil)
 		// 	Expect(err).ToNot(HaveOccurred())
 
-		// 	res = httptest.NewRecorder()
+		// 	rec = httptest.NewRecorder()
 		// 	handler = http.HandlerFunc(Login)
 		// })
 

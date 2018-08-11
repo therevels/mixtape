@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/labstack/echo"
 	"github.com/zmb3/spotify"
 )
 
@@ -14,11 +15,12 @@ import (
 // set:
 //
 // SPOTIFY_ID - the oauth2 client ID
-// SPOTIFY_SECRET - the oauth2 client secret
-func Login(w http.ResponseWriter, r *http.Request) {
+func Login(ctx echo.Context) error {
+	req := ctx.Request()
+
 	redirectURI := &url.URL{
-		Scheme: r.URL.Scheme,
-		Host:   r.URL.Host,
+		Scheme: "https",
+		Host:   req.Host,
 		Path:   "auth/callback",
 	}
 
@@ -30,5 +32,5 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	state := strconv.Itoa(int(time.Now().UnixNano()))
 
 	authURL := auth.AuthURL(state)
-	http.Redirect(w, r, authURL, 302)
+	return ctx.Redirect(http.StatusFound, authURL)
 }

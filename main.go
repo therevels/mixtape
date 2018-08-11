@@ -1,19 +1,18 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/index.html")
-	})
+	e := echo.New()
 
-	http.HandleFunc("/auth/login", Login)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
-	err := http.ListenAndServe(":8088", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	e.File("/", "static/index.html")
+	e.GET("/auth/login", Login)
+
+	e.Logger.Fatal(e.StartTLS(":8088", "cert.pem", "key.pem"))
 }
