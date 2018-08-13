@@ -6,8 +6,10 @@ import (
 	"os"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/quasoft/memstore"
 
 	. "github.com/therevels/mixtape"
 )
@@ -32,6 +34,13 @@ var _ = Describe("Auth", func() {
 
 		BeforeEach(func() {
 			e := echo.New()
+			e.Use(session.Middleware(
+				memstore.NewMemStore(
+					[]byte("authkey123"),
+					[]byte("enckey12341234567890123456789012"),
+				),
+			))
+
 			req = httptest.NewRequest(echo.GET, "https://example.com:443/auth/login", nil)
 			rec = httptest.NewRecorder()
 			ctx = e.NewContext(req, rec)
@@ -79,23 +88,11 @@ var _ = Describe("Auth", func() {
 	})
 
 	Describe("Callback", func() {
-		// var req *http.Request
-		// var rec *httptest.ResponseRecorder
-		// var handler http.HandlerFunc
-
-		// BeforeEach(func() {
-		// 	var err error
-
-		// 	req, err = http.NewRequest("GET", "/auth/callback", nil)
-		// 	Expect(err).ToNot(HaveOccurred())
-
-		// 	rec = httptest.NewRecorder()
-		// 	handler = http.HandlerFunc(Login)
-		// })
-
-		PIt("exchanges the authorization code for an access token", func() {})
+		// TODO: ideally this would have full test coverage, but between
+		// the spotify and oauth2 libraries, the abstractions do not make it
+		// easily testable (no way to inject server URL, etc)
 		PIt("validates the session state", func() {})
-		PIt("stores the access token in the session", func() {})
-		PIt("stores the refresh token in the session", func() {})
+		PIt("exchanges the authorization code for an access token", func() {})
+		PIt("stores the tokens in the session", func() {})
 	})
 })
