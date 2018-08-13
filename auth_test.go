@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"os"
 
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo-contrib/session"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/quasoft/memstore"
@@ -31,24 +31,25 @@ var _ = Describe("Auth", func() {
 		var req *http.Request
 		var rec *httptest.ResponseRecorder
 		var ctx echo.Context
+		var store sessions.Store
 
 		BeforeEach(func() {
 			e := echo.New()
-			e.Use(session.Middleware(
-				memstore.NewMemStore(
-					[]byte("authkey123"),
-					[]byte("enckey12341234567890123456789012"),
-				),
-			))
-
 			req = httptest.NewRequest(echo.GET, "https://example.com:443/auth/login", nil)
 			rec = httptest.NewRecorder()
 			ctx = e.NewContext(req, rec)
+
+			store = memstore.NewMemStore(
+				[]byte("authkey123"),
+				[]byte("enckey12341234567890123456789012"),
+			)
+			ctx.Set("_session_store", store)
 		})
 
 		Context("when not logged in", func() {
 			It("redirects with a 302", func() {
-				Login(ctx)
+				err := Login(ctx)
+				Expect(err).ToNot(HaveOccurred())
 				Expect(rec.Code).To(Equal(http.StatusFound))
 			})
 
@@ -79,7 +80,16 @@ var _ = Describe("Auth", func() {
 				Expect(loc.Query().Get("scope")).To(Equal("user-read-private"))
 			})
 
-			PIt("includes unique state", func() {})
+			It("includes unique session state", func() {
+				Login(ctx)
+				loc, _ := rec.Result().Location()
+				state := loc.Query().Get("state")
+
+				sess, err := store.Get(req, "mixtape-session")
+				Expect(err).ToNot(HaveOccurred())
+				sessState := sess.Values["auth_state"].(string)
+				Expect(state).To(Equal(sessState))
+			})
 		})
 
 		PContext("when logged in", func() {
