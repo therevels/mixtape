@@ -5,12 +5,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/quasoft/memstore"
+	"golang.org/x/oauth2"
 
 	. "github.com/therevels/mixtape"
 )
@@ -86,7 +88,7 @@ var _ = Describe("Auth", func() {
 				loc, _ := rec.Result().Location()
 				state := loc.Query().Get("state")
 
-				sess, err := store.Get(req, "mixtape-session")
+				sess, err := store.Get(req, SessionKey)
 				Expect(err).ToNot(HaveOccurred())
 				sessState := sess.Values["auth_state"].(string)
 				Expect(state).To(Equal(sessState))
@@ -94,22 +96,31 @@ var _ = Describe("Auth", func() {
 		})
 
 		Context("when logged in", func() {
+			var accessToken, refreshToken string
+
 			BeforeEach(func() {
-				sess, _ = store.Get(req, "mixtape-session")
-				sess.Values["access_token"] = "my-existing-access-token"
-				sess.Values["refresh_token"] = "my-existing-refresh-token"
+				sess, _ = store.Get(req, SessionKey)
+				accessToken = "existing-access-token"
+				refreshToken = "existing-refresh-token"
+				sess.Values["access_token"] = &oauth2.Token{
+					AccessToken:  accessToken,
+					TokenType:    "Bearer",
+					RefreshToken: refreshToken,
+					Expiry:       time.Now().Add(time.Hour),
+				}
 			})
 
 			AfterEach(func() {
 				delete(sess.Values, "access_token")
-				delete(sess.Values, "refresh_token")
 			})
 
 			It("redirects to root", func() {
 				Expect(Login(ctx)).To(Succeed())
 				Expect(rec.Code).To(Equal(http.StatusFound))
 				loc, _ := rec.Result().Location()
-				Expect(loc.String()).To(Equal("/"))
+				Expect(loc.Path).To(Equal("/"))
+				fragment := fmt.Sprintf("access_token=%s&refresh_token=%s", accessToken, refreshToken)
+				Expect(loc.Fragment).To(Equal(fragment))
 			})
 		})
 	})
@@ -125,7 +136,7 @@ var _ = Describe("Auth", func() {
 				req = httptest.NewRequest(echo.GET, callbackURL, nil)
 				ctx = e.NewContext(req, rec)
 				ctx.Set("_session_store", store)
-				sess, _ = store.Get(req, "mixtape-session")
+				sess, _ = store.Get(req, SessionKey)
 			})
 
 			Context("when there is no session state", func() {
@@ -138,7 +149,7 @@ var _ = Describe("Auth", func() {
 
 			Context("when session state is invalid", func() {
 				BeforeEach(func() {
-					sess.Values["state"] = "some-completely-different-value"
+					sess.Values["auth_state"] = "some-completely-different-value"
 				})
 
 				AfterEach(func() {
@@ -153,9 +164,13 @@ var _ = Describe("Auth", func() {
 			})
 
 			PContext("when session state is valid", func() {
+				BeforeEach(func() {
+					sess.Values["auth_state"] = state
+				})
+
 				// TODO: ideally this would have full test coverage, but between
 				// the spotify and oauth2 libraries, the abstractions do not make it
-				// easily testable (no way to inject server URL, etc)
+				// easily testable (no way to inject server URLs, etc)
 				It("exchanges the authorization code for an access token", func() {})
 				It("stores the tokens in the session", func() {})
 			})
