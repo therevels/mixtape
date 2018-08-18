@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	// SessionKey is used to retrieve the session from store
 	SessionKey = "mixtape-session"
 )
 
@@ -42,7 +43,10 @@ func Login(ctx echo.Context) error {
 	}
 
 	sess.Values["auth_state"] = state
-	sess.Save(ctx.Request(), ctx.Response())
+	err = sess.Save(ctx.Request(), ctx.Response())
+	if err != nil {
+		return err
+	}
 
 	authURL := auth.AuthURL(state)
 	return ctx.Redirect(http.StatusFound, authURL)
@@ -70,7 +74,10 @@ func Callback(ctx echo.Context) error {
 	}
 
 	sess.Values["access_token"] = token
-	sess.Save(ctx.Request(), ctx.Response())
+	err = sess.Save(ctx.Request(), ctx.Response())
+	if err != nil {
+		return err
+	}
 
 	return redirectWithTokens(ctx)
 }
@@ -112,8 +119,8 @@ func redirectWithTokens(ctx echo.Context) error {
 	if !ok {
 		return errors.New("session access_token is not set")
 	}
-
 	token := t.(*oauth2.Token)
+
 	// No doubt there's all kinds of encoding and stuff we're missing here
 	fragment := fmt.Sprintf(
 		"/#access_token=%s&refresh_token=%s",
