@@ -19,6 +19,15 @@ import (
 // SPOTIFY_ID - the oauth2 client ID
 // SPOTIFY_SECRET - the oauth2 client secret
 func Login(ctx echo.Context) error {
+	sess, err := session.Get("mixtape-session", ctx)
+	if err != nil {
+		return err
+	}
+
+	if _, hasToken := sess.Values["access_token"]; hasToken {
+		return ctx.Redirect(http.StatusFound, "/")
+	}
+
 	auth := newAuthenticator(ctx)
 
 	state, err := newState()
@@ -26,10 +35,6 @@ func Login(ctx echo.Context) error {
 		return err
 	}
 
-	sess, err := session.Get("mixtape-session", ctx)
-	if err != nil {
-		return err
-	}
 	sess.Values["auth_state"] = state
 	sess.Save(ctx.Request(), ctx.Response())
 
@@ -44,8 +49,12 @@ func Callback(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	state := sess.Values["auth_state"].(string)
-	delete(sess.Values, "auth_state")
+
+	var state string
+	if val := sess.Values["auth_state"]; val != nil {
+		state = val.(string)
+		delete(sess.Values, "auth_state")
+	}
 
 	auth := newAuthenticator(ctx)
 
@@ -54,8 +63,7 @@ func Callback(ctx echo.Context) error {
 		return err
 	}
 
-	sess.Values["access_token"] = token.AccessToken
-	sess.Values["refresh_token"] = token.RefreshToken
+	sess.Values["access_token"] = token
 	sess.Save(ctx.Request(), ctx.Response())
 
 	fragment := fmt.Sprintf("/#access_token=%s&refresh_token=%s", token.AccessToken, token.RefreshToken)
