@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/gob"
 	"errors"
 	"fmt"
 	"net/http"
@@ -14,11 +13,6 @@ import (
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
 )
-
-func init() {
-	// Permit serializing the oauth2.Token type to the session
-	gob.Register(&oauth2.Token{})
-}
 
 const (
 	// SessionKey is used to retrieve the session from store
