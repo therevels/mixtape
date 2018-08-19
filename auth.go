@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/gob"
 	"errors"
 	"fmt"
 	"net/http"
@@ -13,6 +14,11 @@ import (
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
 )
+
+func init() {
+	// Permit serializing the oauth2.Token type to the session
+	gob.Register(&oauth2.Token{})
+}
 
 const (
 	// SessionKey is used to retrieve the session from store
@@ -80,6 +86,24 @@ func Callback(ctx echo.Context) error {
 	}
 
 	return redirectWithTokens(ctx)
+}
+
+// Logout an authenticated user, destroying the existing session
+func Logout(ctx echo.Context) error {
+	sess, err := session.Get(SessionKey, ctx)
+	if err != nil {
+		return err
+	}
+
+	// This forces gorilla to delete the session safely, no matter what kind of
+	// session store is being used
+	sess.Options.MaxAge = -1
+	err = sess.Save(ctx.Request(), ctx.Response())
+	if err != nil {
+		return nil
+	}
+
+	return ctx.Redirect(http.StatusFound, "/")
 }
 
 func newState() (string, error) {

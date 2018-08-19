@@ -191,4 +191,57 @@ var _ = Describe("Auth", func() {
 			})
 		})
 	})
+
+	Describe("Logout", func() {
+		BeforeEach(func() {
+			req = httptest.NewRequest(echo.GET, "https://example.com/auth/logout", nil)
+			ctx = e.NewContext(req, rec)
+			ctx.Set("_session_store", store)
+		})
+
+		Context("when logged in", func() {
+			var accessToken, refreshToken string
+
+			BeforeEach(func() {
+				sess, _ = store.Get(req, SessionKey)
+				accessToken = "existing-access-token"
+				refreshToken = "existing-refresh-token"
+				sess.Values["access_token"] = &oauth2.Token{
+					AccessToken:  accessToken,
+					TokenType:    "Bearer",
+					RefreshToken: refreshToken,
+					Expiry:       time.Now().Add(time.Hour),
+				}
+			})
+
+			AfterEach(func() {
+				delete(sess.Values, "access_token")
+			})
+
+			It("has no errors", func() {
+				Expect(Logout(ctx)).To(Succeed())
+			})
+
+			It("redirects to the landing page", func() {
+				Logout(ctx)
+				Expect(rec.Code).To(Equal(http.StatusFound))
+				loc, _ := rec.Result().Location()
+				Expect(loc.String()).To(Equal("/"))
+			})
+
+			It("invalidates the existing session", func() {
+				Logout(ctx)
+				Expect(sess.Values["access_token"]).To(BeNil())
+			})
+		})
+
+		Context("when not logged in", func() {
+			It("redirects to the landing page", func() {
+				Expect(Logout(ctx)).To(Succeed())
+				Expect(rec.Code).To(Equal(http.StatusFound))
+				loc, _ := rec.Result().Location()
+				Expect(loc.String()).To(Equal("/"))
+			})
+		})
+	})
 })
