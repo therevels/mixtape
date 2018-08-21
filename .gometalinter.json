@@ -1,0 +1,32 @@
+{
+  "Vendor": true,
+  "VendoredLinters": true,
+  "Exclude": ["vendor", "_test.go", "mocks"],
+  "DisableAll": true,
+  "Enable": [
+    "deadcode",
+    "dupl",
+    "errcheck",
+    "gochecknoglobals",
+    "gochecknoinits",
+    "goconst",
+    "gocyclo",
+    "goimports",
+    "golint",
+    "gosec",
+    "gotype",
+    "gotypex",
+    "ineffassign",
+    "interfacer",
+    "lll",
+    "maligned",
+    "megacheck",
+    "misspell",
+    "nakedret",
+    "safesql",
+    "structcheck",
+    "unconvert",
+    "unparam",
+    "varcheck"
+  ]
+}

@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+     - "8088:8088"
+    environment:
+      - SPOTIFY_ID
+      - SPOTIFY_SECRET
+      - COOKIE_SECRET
