@@ -12,7 +12,7 @@ Configuration
 	-	`SPOTIFY_SECRET` - the client secret
 
 Local development
------------------
+------------------
 
 1.	Clone the repo:
 
