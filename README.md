@@ -39,4 +39,4 @@ Local development
 	docker-compose up
 	```
 
-5.	Visit http://localhost:8088 in a browser
+5.	Visit https://localhost:8088 in a browser
