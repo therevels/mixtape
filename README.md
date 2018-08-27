@@ -1,4 +1,4 @@
-mixtape
+mixtape [ ![Codeship Status for therevels/mixtape](https://app.codeship.com/projects/f18946b0-8bd5-0136-edb0-6ab854cb25a7/status?branch=master)](https://app.codeship.com/projects/303334)
 =======
 
 Configuration
