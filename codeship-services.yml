@@ -1,0 +1,11 @@
+---
+  mixtape: 
+    build: 
+      image: "therevels/mixtape"
+      dockerfile: "Dockerfile"
+      ports: 
+        - "8088"
+    environment: 
+      SPOTIFY_ID: ""
+      SPOTIFY_SECRET: ""
+      COOKIE_SECRET: ""
