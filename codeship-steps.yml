@@ -1,0 +1,5 @@
+---
+  - 
+    name: "specs"
+    service: "mixtape"
+    command: "go test"
