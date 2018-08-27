@@ -1,4 +1,4 @@
-mixtape [![Build Status](https://travis-ci.org/therevels/mixtape.svg?branch=master)](https://travis-ci.org/therevels/mixtape)
+mixtape
 =======
 
 Configuration
